@@ -9,8 +9,10 @@ st.set_page_config(page_title="Cookie Cats A/B Test Report", layout="wide")
 # 데이터 로드
 @st.cache_data
 def load_data():
-    df = pd.read_csv('data.csv')
+    # 팀장님이 깃허브에 올린 실제 파일 이름과 토씨 하나 안 틀리고 똑같이 적어야 합니다!
+    df = pd.read_csv('cookie_cats_final (1).xlsx - Sheet1.csv') 
     return df
+
 
 df = load_data()
 
