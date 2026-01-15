@@ -88,13 +88,47 @@ with col_play2:
     st.plotly_chart(fig_int, use_container_width=True)
     st.write("**의의:** 잔존 유저의 질적 행동 변화 확인.")
 
-# 4. 종합 해석 요약 (결론 강조 디자인)
+# 4. Result_Summary (성공 판정 및 종합 해석)
 st.markdown("---")
-st.subheader("4️⃣ Result_Summary: 종합 해석")
-st.error("### **실험 결론: gate_40 도입 철회 및 기존 gate_30 유지 권고**")
+st.subheader("4️⃣ Result_Summary: 실험 성공 판정 및 종합 해석")
 
-f1, f2 = st.columns(2)
-with f1:
-    st.info("**📉 리텐션 하락**\n\n7일 및 1일 리텐션 모두 하락. 게이트 위치 상향이 중장기 잔존에 부정적 영향을 미침.")
-with f2:
-    st.info("**⚠️ 플레이 흐름 저해**\n\n전체 행동량 지표 감소. 유저에게 도전 의식보다 이탈 명분을 제공한 것으로 해석됨.")
+# 성공 판정 카드 디자인
+score_col1, score_col2 = st.columns([1, 2])
+
+with score_col1:
+    st.error("### **최종 판정: FAILURE (도입 철회)**")
+    st.markdown("""
+    **판정 근거:**
+    - **필수 조건:** Retention_7 개선 여부 → **[미달성]**
+    - **통계적 유의성:** p-value < 0.05 확인 → **[유의미한 하락]**
+    """)
+
+with score_col2:
+    # 성공 판정 규칙 테이블
+    data = {
+        "구분": ["Primary (7일 리텐션)", "Secondary (1일 리텐션)", "Secondary (전체 행동량)", "Secondary (유지유저 강도)"],
+        "검증 목표": ["0.5%p 이상 상승", "현상 유지 이상", "평균치 상승", "사후 분석용"],
+        "결과": ["▼ 0.82%p 하락", "▼ 0.59%p 하락", "변화 없음", "▲ 7.6회 상승"],
+        "판정": ["❌ Fail", "⚠️ Warning", "➖ Neutral", "✅ Success"]
+    }
+    st.table(pd.DataFrame(data))
+
+# 상세 인사이트 정리
+st.markdown("---")
+insight_col1, insight_col2 = st.columns(2)
+
+with insight_col1:
+    st.info("### 📉 왜 실패했는가? (전체 유저 관점)")
+    st.markdown("""
+    - **초기 이탈 가속:** 게이트를 40으로 미룬 것이 유저에게 '휴식'이 아닌 '피로'를 유발.
+    - **가드레일 붕괴:** 핵심 지표인 7일 리텐션이 무너지면서 다른 보조 지표의 개선 효과가 무의미해짐.
+    """)
+
+with insight_col2:
+    st.success("### 🔍 무엇을 발견했는가? (잔존 유저 관점)")
+    st.markdown("""
+    - **사후 분석 결과:** 게이트를 통과한 '코어 유저'들은 30 버전보다 40 버전에서 더 깊은 몰입도(평균 +7.6회)를 보임.
+    - **전략적 시사점:** 게이트 상향은 전체 리텐션을 깎지만, **남아있는 유저의 LTV(생애가치)는 높이는 양날의 검**임.
+    """)
+
+st.warning("⚠️ **최종 권고:** 비즈니스 안정성을 위해 **gate_30 버전을 유지**하되, 잔존 유저의 몰입도를 높일 수 있는 별도의 인게임 이벤트를 검토할 것.")
