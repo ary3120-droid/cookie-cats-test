@@ -9,10 +9,11 @@ st.set_page_config(page_title="Cookie Cats A/B Test Report", layout="wide")
 # 데이터 로드
 @st.cache_data
 def load_data():
-    # 이제 이름을 data.csv로 바꿨으니 이렇게만 쓰면 됩니다!
-    df = pd.read_csv('data.csv') 
+    df = pd.read_csv('data.csv')
+    # 수치 정확도를 위해 데이터 타입 강제 변환
+    df['retention_1'] = df['retention_1'].astype(bool)
+    df['retention_7'] = df['retention_7'].astype(bool)
     return df
-
 
 df = load_data()
 
@@ -31,7 +32,10 @@ col1, col2, col3, col4 = st.columns(4)
 col1.metric("전체 사용자 수", f"{total_n:,}명")
 col2.metric("gate_30 (Control)", f"{g30_n:,}명")
 col3.metric("gate_40 (Test)", f"{g40_n:,}명")
-col4.metric("샘플 비율", "50.4% : 49.6%", "안정적")
+# 실제 데이터 기반 샘플 비율 계산
+g30_pct = (g30_n / total_n) * 100
+g40_pct = (g40_n / total_n) * 100
+col4.metric("샘플 비율", f"{g30_pct:.1f}% : {g40_pct:.1f}%", "안정적")
 
 st.info("💡 **의의:** 두 그룹 간 표본 수 차이가 크지 않음을 확인하여 실험 결과 해석의 공정성을 확보함.")
 
@@ -40,23 +44,24 @@ st.markdown("---")
 st.subheader("2️⃣ 리텐션 지표 비교: 성공 여부 판단")
 col_ret1, col_ret2 = st.columns(2)
 
+# 차트 내 한글 깨짐 방지를 위해 영어 Title 사용
 with col_ret1:
-    st.write("#### [Primary] Retention_7_비교")
+    st.write("#### [Primary] 7-Day Retention")
     ret7_mean = df.groupby('version')['retention_7'].mean()
     fig1, ax1 = plt.subplots(figsize=(6, 4))
     sns.barplot(x=ret7_mean.index, y=ret7_mean.values, palette="RdYlGn_r", ax=ax1)
-    ax1.set_ylabel("Retention Rate")
+    ax1.set_title("Retention 7 Days Rate")
     for i, v in enumerate(ret7_mean.values):
         ax1.text(i, v, f"{v:.2%}", ha='center', va='bottom', fontweight='bold')
     st.pyplot(fig1)
-    st.write("**분석:** gate_40의 7일 리텐션이 더 낮게 관찰됨.")
+    st.write("**분석:** gate_40의 7일 리텐션이 약 0.8%p 낮게 관찰됨 (부정적).")
 
 with col_ret2:
-    st.write("#### [Secondary] Retention_1_비교")
+    st.write("#### [Secondary] 1-Day Retention")
     ret1_mean = df.groupby('version')['retention_1'].mean()
     fig2, ax2 = plt.subplots(figsize=(6, 4))
     sns.barplot(x=ret1_mean.index, y=ret1_mean.values, palette="coolwarm", ax=ax2)
-    ax2.set_ylabel("Retention Rate")
+    ax2.set_title("Retention 1 Day Rate")
     for i, v in enumerate(ret1_mean.values):
         ax2.text(i, v, f"{v:.2%}", ha='center', va='bottom', fontweight='bold')
     st.pyplot(fig2)
@@ -67,21 +72,20 @@ st.subheader("3️⃣ 플레이 지표 분석: 행동 변화의 근거")
 col_play1, col_play2 = st.columns(2)
 
 with col_play1:
-    st.write("#### Play_Count_Distribution (Capped)")
+    st.write("#### Play Count Distribution (Capped)")
     fig3, ax3 = plt.subplots(figsize=(6, 4))
     sns.boxplot(x='version', y='sum_gamerounds_capped', data=df, palette="Set3", ax=ax3)
-    ax3.set_title("전체 사용자 플레이 분포")
+    ax3.set_title("Gamerounds Distribution")
     st.pyplot(fig3)
     st.caption("※ 상위 1% 이상치를 보정한 값입니다.")
 
 with col_play2:
-    st.write("#### Play_Count_Retained_7")
-    # 7일 유지 유저만 필터링
+    st.write("#### Play Count (Retained Users Only)")
     retained_df = df[df['retention_7'] == True]
     intensity = retained_df.groupby('version')['sum_gamerounds_capped'].mean()
     fig4, ax4 = plt.subplots(figsize=(6, 4))
     sns.barplot(x=intensity.index, y=intensity.values, palette="magma", ax=ax4)
-    ax4.set_ylabel("Avg Gamerounds")
+    ax4.set_title("Avg Rounds for Retained Users")
     for i, v in enumerate(intensity.values):
         ax4.text(i, v, f"{v:.1f}회", ha='center', va='bottom', fontweight='bold')
     st.pyplot(fig4)
