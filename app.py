@@ -122,3 +122,46 @@ with ins2:
     st.success("**🚀 몰입의 트레이드오프 (전략 분석)**\ngate_40은 리텐션은 깎지만, 살아남은 유저를 더 '헤비 유저'로 만듭니다. 이는 유저 수(Quantity)와 유저당 가치(Quality) 사이의 선택 문제입니다.")
 
 st.warning("⚠️ **최종 권고:** 현재 리텐션 방어가 최우선이므로 **gate_30을 유지**하십시오. 단, gate_40에서 확인된 몰입 상승 효과는 추후 '헤비 유저 전용 모드' 설계 시 반영할 것을 제안합니다.")
+
+
+# --- 추가 제언 섹션: 비즈니스 임팩트 분석 ---
+st.markdown("---")
+st.subheader("🚀 비즈니스 임팩트 및 시뮬레이션")
+
+col_biz1, col_biz2 = st.columns(2)
+
+with col_biz1:
+    st.write("#### 💸 리텐션 하락에 따른 유저 손실 추정")
+    # 리텐션 차이 계산 (0.82%p 가정)
+    ret_diff = 0.0082 
+    # 가상의 월간 신규 유입자 수 설정
+    new_users_monthly = st.number_input("월간 신규 유입 유저 수(UA) 설정", value=100000, step=10000)
+    
+    lost_users = int(new_users_monthly * ret_diff)
+    st.error(f"**월간 예상 잔존 유저 손실: 약 {lost_users:,}명**")
+    st.caption(f"※ gate_40 도입 시, gate_30 대비 매월 {lost_users:,}명의 유저가 더 이탈함을 의미함")
+
+with col_biz2:
+    st.write("#### 📉 Critical Zone (31-40 라운드) 이탈 패턴")
+    # 30~40 라운드 구간의 유저 잔존 데이터 시뮬레이션
+    # 실제 데이터에서 해당 구간의 이탈률을 계산하여 시각화
+    zone_df = df[df['sum_gamerounds_capped'].between(30, 45)]
+    fig_zone = px.histogram(zone_df, x="sum_gamerounds_capped", color="version",
+                            marginal="rug", barmode="group",
+                            color_discrete_sequence=['#636EFA', '#EF553B'])
+    fig_zone.update_layout(title="Gate 인근 구간(30-45) 유저 분포", xaxis_title="플레이 라운드", yaxis_title="유저 수")
+    st.plotly_chart(fig_zone, use_container_width=True)
+
+# 마케팅 전략 시각화 (Expander 활용)
+with st.expander("💡 [전략 제언] 감질맛 효과 극대화를 위한 UX/UI 시안 보기"):
+    st.markdown("""
+    ### 1. 시각적 Cliffhanger 전략
+    * **현상:** Gate 30에서 멈춘 유저의 7일차 복귀율이 1.7% 더 높음.
+    * **적용:** 게이트 화면 너머로 **다음 스테이지 보상**을 노출하여 재방문 동기 부여.
+    
+    ### 2. 가변적 게이트 시스템 (Dynamic Gating)
+    * **적용:** 초반(30단계)은 리텐션을 위해 짧게, 후반(40단계 이후)은 몰입을 위해 길게 배치.
+    
+    ### 3. 개인화된 리턴 푸시 (CRM)
+    * **적용:** Gate 30에서 멈춘 유저가 24시간 미접속 시 "고양이가 쿠키를 다 구웠어요!" 알림 발송.
+    """)
