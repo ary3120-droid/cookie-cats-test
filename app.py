@@ -93,10 +93,26 @@ st.subheader("3. 가설 2 검정: 사용자 플레이 행동 변화")
 col_play1, col_play2 = st.columns(2)
 with col_play1:
     st.write("#### [2-1] 전체 플레이 행동량 (Capped)")
+    # 박스플롯 생성
     fig_box = px.box(df, x="version", y="sum_gamerounds_capped", color="version",
-                     color_discrete_sequence=['#636EFA', '#EF553B'])
-    # 수정: 박스플롯 높이 축소
-    fig_box.update_layout(height=320, showlegend=False, margin=dict(t=10, b=10))
+                     color_discrete_sequence=['#636EFA', '#EF553B'],
+                     points="all") # 모든 데이터 포인트를 옆에 표시하여 밀도 차이 시각화
+    
+    # Y축 범위를 데이터의 75% 분위수(Q3) 근처로 조정하여 박스를 크게 키움
+    # 데이터에 따라 100~200 사이로 적절히 조정 가능합니다.
+    q3_value = df['sum_gamerounds_capped'].quantile(0.75)
+    
+    fig_box.update_layout(
+        height=350, 
+        showlegend=False, 
+        margin=dict(t=10, b=10),
+        # Y축을 데이터가 몰려있는 하단부로 집중 (이상치 때문에 박스가 작아지는 것 방지)
+        yaxis=dict(range=[0, q3_value * 2]) 
+    )
+    
+    # 중앙값(Median) 외에 평균값(Mean)을 다이아몬드 형태로 추가 표시
+    fig_box.update_traces(boxmean=True) 
+    
     st.plotly_chart(fig_box, use_container_width=True)
     st.write("**결과:** 전체 사용자 기준 플레이 총량의 유의미한 변화 없음")
 
