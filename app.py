@@ -46,76 +46,77 @@ with col3:
 st.info("💡 **SRM 확인:** 미세한 샘플 불균형이 관측되나, 대규모 표본에 따른 통계적 민감성으로 판단됨. 분석 결과에 미치는 영향은 제한적임.")
 
 # 2️⃣ 가설 1 검정: 리텐션 (Primary & Guardrail)
-# --- 2️⃣ 가설 1 검정 섹션 수정 ---
 st.markdown("---")
 st.subheader("2. 가설 1 검정: 사용자 리텐션 영향 분석")
+st.write("> **필수 조건:** 7일 리텐션의 유의미한 개선이 확인되어야 함")
 
 ret7 = df.groupby('version')['retention_7'].mean()
 ret1 = df.groupby('version')['retention_1'].mean()
 
-# 컬럼 간격을 좁히고 차트 크기를 줄임
 c_ret1, c_ret2 = st.columns(2)
-
 with c_ret1:
-    st.write("#### [Primary] 7-Day Retention")
-    # y축 범위를 데이터 근처로 설정하여 차이를 극대화 (예: 15%~20%)
+    st.write("#### [Primary] 7-Day Retention Rate")
     fig7 = px.bar(ret7, x=ret7.index, y=ret7.values, text_auto='.2%', 
                   color=ret7.index, color_discrete_sequence=['#636EFA', '#EF553B'])
     
+    # 수정: 높이를 줄이고 Y축 범위를 80% 지점부터 설정하여 적절한 차이 가시화
     fig7.update_layout(
         showlegend=False, 
-        height=280,  # 높이 축소
-        margin=dict(l=10, r=10, t=30, b=10),
-        yaxis=dict(range=[min(ret7.values)*0.98, max(ret7.values)*1.02], tickformat='.1%') # Y축 최적화
+        height=300, 
+        yaxis_tickformat='.1%',
+        yaxis=dict(range=[min(ret7.values)*0.8, max(ret7.values)*1.2])
     )
-    fig7.update_traces(textfont_size=15, textposition="outside") # 수치 강조
+    fig7.update_traces(textfont_size=14, textposition="outside")
     st.plotly_chart(fig7, use_container_width=True)
-    st.error("**결과:** gate_40에서 약 0.8%p 하락 (유의미함)")
+    st.error("**검정 결과:** gate_40에서 약 0.8%p 하락 확인 (대립가설 기각)")
 
 with c_ret2:
-    st.write("#### [Guardrail] 1-Day Retention")
+    st.write("#### [Guardrail] 1-Day Retention Rate")
     fig1 = px.bar(ret1, x=ret1.index, y=ret1.values, text_auto='.2%', 
                   color=ret1.index, color_discrete_sequence=['#00CC96', '#AB63FA'])
     
+    # 수정: 높이 조절 및 Y축 범위 최적화
     fig1.update_layout(
         showlegend=False, 
-        height=280, # 높이 축소
-        margin=dict(l=10, r=10, t=30, b=10),
-        yaxis=dict(range=[min(ret1.values)*0.98, max(ret1.values)*1.02], tickformat='.1%') # Y축 최적화
+        height=300, 
+        yaxis_tickformat='.1%',
+        yaxis=dict(range=[min(ret1.values)*0.8, max(ret1.values)*1.2])
     )
-    fig1.update_traces(textfont_size=15, textposition="outside")
+    fig1.update_traces(textfont_size=14, textposition="outside")
     st.plotly_chart(fig1, use_container_width=True)
-    st.warning("**결과:** 초기 안착 단계 차이 미미")
+    st.warning("**모니터링:** 초기 안착 단계에서도 유의미한 개선 없음")
 
-# --- 3️⃣ 가설 2 검정 섹션 수정 (박스플롯 크기 조절) ---
+# 3️⃣ 가설 2 검정: 플레이 행동량 (Volume & Intensity)
 st.markdown("---")
 st.subheader("3. 가설 2 검정: 사용자 플레이 행동 변화")
 
-col_play1, col_play2 = st.columns([1.2, 1]) # 왼쪽(박스플롯)을 약간 더 넓게
+col_play1, col_play2 = st.columns(2)
 with col_play1:
-    st.write("#### [2-1] 전체 플레이량 (Capped)")
+    st.write("#### [2-1] 전체 플레이 행동량 (Capped)")
     fig_box = px.box(df, x="version", y="sum_gamerounds_capped", color="version",
                      color_discrete_sequence=['#636EFA', '#EF553B'])
-    fig_box.update_layout(height=300, margin=dict(t=20, b=20), showlegend=False)
+    # 수정: 박스플롯 높이 축소
+    fig_box.update_layout(height=320, showlegend=False, margin=dict(t=10, b=10))
     st.plotly_chart(fig_box, use_container_width=True)
+    st.write("**결과:** 전체 사용자 기준 플레이 총량의 유의미한 변화 없음")
 
 with col_play2:
-    st.write("#### [2-2] 7일 유지 유저의 플레이 강도")
+    st.write("#### [2-2] 7일 유지 유저의 평균 플레이 강도")
     retained_df = df[df['retention_7'] == True]
     intensity = retained_df.groupby('version')['sum_gamerounds_capped'].mean()
     
     fig_int = px.bar(intensity, x=intensity.index, y=intensity.values, text_auto='.1f',
                      color=intensity.index, color_discrete_sequence=['#FFA15A', '#19D3AF'])
     
-    # 이 차트도 Y축 범위를 조정하여 상승폭이 잘 보이게 설정
+    # 수정: Y축을 50% 지점부터 시작하게 하여 막대의 안정감과 차이를 동시에 잡음
     fig_int.update_layout(
         showlegend=False, 
-        height=300,
-        yaxis=dict(range=[min(intensity.values)*0.95, max(intensity.values)*1.05])
+        height=320,
+        yaxis=dict(range=[min(intensity.values)*0.5, max(intensity.values)*1.2])
     )
-    fig_int.update_traces(textfont_size=15, textposition="outside")
+    fig_int.update_traces(textfont_size=14, textposition="outside")
     st.plotly_chart(fig_int, use_container_width=True)
-
+    st.success(f"**발견:** 잔존 유저 집단 내 몰입도 **+7.6회 유의적 상승** ($p < 0.05$)")
 # 4️⃣ 최종 의사결정 및 인사이트 (통합)
 st.markdown("---")
 st.subheader("4. 최종 성공 판정 및 비즈니스 제언")
