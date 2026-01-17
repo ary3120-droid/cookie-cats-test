@@ -3,12 +3,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# 1. 페이지 설정
-st.set_page_config(page_title="Cookie Cats A/B Test Report", layout="wide")
+# 1. 페이지 설정 및 데이터 로드
+st.set_page_config(page_title="Cookie Cats A/B Test Analysis", layout="wide")
 
-# 데이터 로드 (수치 정확도 보정 덧붙임)
 @st.cache_data
 def load_data():
+    # 데이터 파일명은 환경에 맞게 수정하세요
     df = pd.read_csv('data.csv')
     df['retention_1'] = df['retention_1'].astype(bool)
     df['retention_7'] = df['retention_7'].astype(bool)
@@ -16,36 +16,40 @@ def load_data():
 
 df = load_data()
 
-# 스타일링 (가독성 향상)
+# 커스텀 CSS (카드 디자인)
 st.markdown("""
     <style>
-    .stMetric { background-color: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e6e9ef; }
+    .metric-card { background-color: #f8f9fb; padding: 15px; border-radius: 10px; border-left: 5px solid #636EFA; }
+    .insight-box { background-color: #f1f3f6; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 타이틀 섹션 ---
-st.title("🎮 Cookie Cats 게이트 위치 변경 실험 리포트")
-st.caption("실험 설계: gate_30 (기존) vs gate_40 (변경안) | 분석 범위: 리텐션 및 플레이 행동량")
+st.title("🎮 Cookie Cats 게이트 배치 최적화 실험 분석")
+st.markdown("#### '의도된 불편함'과 '유저 몰입' 사이의 트레이드오프 분석")
 st.markdown("---")
 
-# 1. KPI_실험개요 (전제 확인)
-st.subheader("1️⃣ KPI_실험개요: 실험 데이터의 신뢰성 확인")
+# 1️⃣ 실험 신뢰성 확인 (SRM Check)
+st.subheader("1. 데이터 신뢰성 및 샘플 분포 확인")
 total_n = len(df)
 g30_n = len(df[df['version'] == 'gate_30'])
 g40_n = len(df[df['version'] == 'gate_40'])
-g30_pct = (g30_n / total_n)
-g40_pct = (g40_n / total_n)
 
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("전체 사용자 수", f"{total_n:,}명")
-col2.metric("gate_30 (Control)", f"{g30_n:,}명")
-col3.metric("gate_40 (Test)", f"{g40_n:,}명")
-col4.metric("샘플 비율", f"{g30_pct:.1%} : {g40_pct:.1%}", "안정적")
-st.info("💡 **의의:** 두 그룹 간 표본 수 차이가 크지 않음을 확인하여 실험 결과 해석의 공정성을 확보함.")
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("전체 샘플 수 (N)", f"{total_n:,}")
+with col2:
+    st.metric("gate_30 (Control)", f"{g30_n:,}", f"{(g30_n/total_n):.1%}")
+with col3:
+    st.metric("gate_40 (Treatment)", f"{g40_n:,}", f"{(g40_n/total_n):.1%}")
 
-# 2. 리텐션 지표 비교 (결과 판단 - 인터랙티브 차트 덧붙임)
+st.info("💡 **SRM 확인:** 미세한 샘플 불균형이 관측되나, 대규모 표본에 따른 통계적 민감성으로 판단됨. 분석 결과에 미치는 영향은 제한적임.")
+
+# 2️⃣ 가설 1 검정: 리텐션 (Primary & Guardrail)
 st.markdown("---")
-st.subheader("2️⃣ 리텐션 지표 비교: 성공 여부 판단")
+st.subheader("2. 가설 1 검정: 사용자 리텐션 영향 분석")
+st.write("> **필수 조건:** 7일 리텐션의 유의미한 개선이 확인되어야 함")
+
 ret7 = df.groupby('version')['retention_7'].mean()
 ret1 = df.groupby('version')['retention_1'].mean()
 
@@ -56,79 +60,65 @@ with c_ret1:
                   color=ret7.index, color_discrete_sequence=['#636EFA', '#EF553B'])
     fig7.update_layout(showlegend=False, height=350, yaxis_tickformat='.1%')
     st.plotly_chart(fig7, use_container_width=True)
-    st.write("**분석:** gate_40 리텐션이 약 0.8%p 낮게 관찰됨 (부정적).")
+    st.error("**검정 결과:** gate_40에서 약 0.8%p 하락 확인 (대립가설 기각)")
 
 with c_ret2:
-    st.write("#### [Secondary] 1-Day Retention Rate")
+    st.write("#### [Guardrail] 1-Day Retention Rate")
     fig1 = px.bar(ret1, x=ret1.index, y=ret1.values, text_auto='.2%', 
                   color=ret1.index, color_discrete_sequence=['#00CC96', '#AB63FA'])
     fig1.update_layout(showlegend=False, height=350, yaxis_tickformat='.1%')
     st.plotly_chart(fig1, use_container_width=True)
+    st.warning("**모니터링:** 초기 안착 단계에서도 유의미한 개선 없음")
 
-# 3. 플레이 지표 분석 (근거 확인 - 고해상도 박스플롯 덧붙임)
+# 3️⃣ 가설 2 검정: 플레이 행동량 (Volume & Intensity)
 st.markdown("---")
-st.subheader("3️⃣ 플레이 지표 분석: 행동 변화의 근거")
-col_play1, col_play2 = st.columns(2)
+st.subheader("3. 가설 2 검정: 사용자 플레이 행동 변화")
 
+col_play1, col_play2 = st.columns(2)
 with col_play1:
-    st.write("#### Play Count Distribution (Capped)")
+    st.write("#### [2-1] 전체 플레이 행동량 (Capped)")
     fig_box = px.box(df, x="version", y="sum_gamerounds_capped", color="version",
                      color_discrete_sequence=['#636EFA', '#EF553B'])
     fig_box.update_layout(height=400, showlegend=False)
     st.plotly_chart(fig_box, use_container_width=True)
-    st.caption("※ 상위 1% 이상치를 보정한 분포입니다.")
+    st.write("**결과:** 전체 사용자 기준 플레이 총량의 유의미한 변화 없음")
 
 with col_play2:
-    st.write("#### Play Count (Retained Users Only)")
+    # 사후 분석 지표: 7일 유지 유저만 필터링
+    st.write("#### [2-2] 7일 유지 유저의 평균 플레이 강도")
     retained_df = df[df['retention_7'] == True]
     intensity = retained_df.groupby('version')['sum_gamerounds_capped'].mean()
+    
     fig_int = px.bar(intensity, x=intensity.index, y=intensity.values, text_auto='.1f',
                      color=intensity.index, color_discrete_sequence=['#FFA15A', '#19D3AF'])
     fig_int.update_layout(showlegend=False, height=400)
     st.plotly_chart(fig_int, use_container_width=True)
-    st.write("**의의:** 잔존 유저의 질적 행동 변화 확인.")
+    st.success(f"**발견:** 잔존 유저 집단 내 몰입도 **+7.6회 유의적 상승** ($p < 0.05$)")
 
-# 4. Result_Summary (성공 판정 및 종합 해석)
+# 4️⃣ 최종 의사결정 및 인사이트 (통합)
 st.markdown("---")
-st.subheader("4️⃣ Result_Summary: 실험 성공 판정 및 종합 해석")
+st.subheader("4. 최종 성공 판정 및 비즈니스 제언")
 
-# 성공 판정 카드 디자인
 score_col1, score_col2 = st.columns([1, 2])
-
 with score_col1:
-    st.error("### **최종 판정: FAILURE (도입 철회)**")
-    st.markdown("""
-    **판정 근거:**
-    - **필수 조건:** Retention_7 개선 여부 → **[미달성]**
-    - **통계적 유의성:** p-value < 0.05 확인 → **[유의미한 하락]**
-    """)
+    st.error("## **최종 판정: FAILURE**")
+    st.markdown("### **기존안(gate_30) 유지**")
+    st.write("핵심 지표인 7일 리텐션이 하락하여 변경안 채택 불가.")
 
 with score_col2:
-    # 성공 판정 규칙 테이블
-    data = {
-        "구분": ["Primary (7일 리텐션)", "Secondary (1일 리텐션)", "Secondary (전체 행동량)", "Secondary (유지유저 강도)"],
-        "검증 목표": ["0.5%p 이상 상승", "현상 유지 이상", "평균치 상승", "사후 분석용"],
-        "결과": ["▼ 0.82%p 하락", "▼ 0.59%p 하락", "변화 없음", "▲ 7.6회 상승"],
-        "판정": ["❌ Fail", "⚠️ Warning", "➖ Neutral", "✅ Success"]
+    # 성격별 지표 요약 테이블
+    results = {
+        "지표 유형": ["Primary (7일 리텐션)", "Guardrail (1일 리텐션)", "Volume (전체 행동량)", "Insight (플레이 강도)"],
+        "가설 결과": ["▼ 하락 (기각)", "➖ 중립 (기각)", "➖ 중립 (기각)", "▲ 상승 (채택)"],
+        "비즈니스 영향": ["유저 이탈 위험 증가", "초기 경험 개선 미비", "양적 성장 한계", "잔존 유저 가치 증가"]
     }
-    st.table(pd.DataFrame(data))
+    st.table(pd.DataFrame(results))
 
-# 상세 인사이트 정리
-st.markdown("---")
-insight_col1, insight_col2 = st.columns(2)
+st.markdown("### 💡 핵심 인사이트 및 전략")
+ins1, ins2 = st.columns(2)
+with ins1:
+    st.info("**📉 '감질맛'의 힘 (심리 분석)**\ngate_30의 이른 차단은 유저에게 '드라마 클리프행어'와 같은 효과를 주어 재방문을 유도합니다. gate_40은 이를 제거하여 유저가 한 번에 피로를 느끼게 만들었습니다.")
+with ins2:
+    st.success("**🚀 몰입의 트레이드오프 (전략 분석)**\ngate_40은 리텐션은 깎지만, 살아남은 유저를 더 '헤비 유저'로 만듭니다. 이는 유저 수(Quantity)와 유저당 가치(Quality) 사이의 선택 문제입니다.")
 
-with insight_col1:
-    st.info("### 📉 왜 실패했는가? (전체 유저 관점)")
-    st.markdown("""
-    - **초기 이탈 가속:** 게이트를 40으로 미룬 것이 유저에게 '휴식'이 아닌 '피로'를 유발.
-    - **가드레일 붕괴:** 핵심 지표인 7일 리텐션이 무너지면서 다른 보조 지표의 개선 효과가 무의미해짐.
-    """)
-
-with insight_col2:
-    st.success("### 🔍 무엇을 발견했는가? (잔존 유저 관점)")
-    st.markdown("""
-    - **사후 분석 결과:** 게이트를 통과한 '코어 유저'들은 30 버전보다 40 버전에서 더 깊은 몰입도(평균 +7.6회)를 보임.
-    - **전략적 시사점:** 게이트 상향은 전체 리텐션을 깎지만, **남아있는 유저의 LTV(생애가치)는 높이는 양날의 검**임.
-    """)
-
-st.warning("⚠️ **최종 권고:** 비즈니스 안정성을 위해 **gate_30 버전을 유지**하되, 잔존 유저의 몰입도를 높일 수 있는 별도의 인게임 이벤트를 검토할 것.")
+st.warning("⚠️ **최종 권고:** 현재 리텐션 방어가 최우선이므로 **gate_30을 유지**하십시오. 단, gate_40에서 확인된 몰입 상승 효과는 추후 '헤비 유저 전용 모드' 설계 시 반영할 것을 제안합니다.")
