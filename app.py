@@ -140,6 +140,7 @@ with col_biz1:
     lost_users = int(new_users_monthly * ret_diff)
     st.error(f"**월간 예상 잔존 유저 손실: 약 {lost_users:,}명**")
     st.caption(f"※ gate_40 도입 시, gate_30 대비 매월 {lost_users:,}명의 유저가 더 이탈함을 의미함")
+    st.caption(f"※ 위 시뮬레이션은 유입 규모에 따른 기회비용 손실을 정량적으로 보여줍니다")
 
 with col_biz2:
     st.write("#### 📉 Critical Zone (31-40 라운드) 이탈 패턴")
