@@ -93,25 +93,23 @@ st.subheader("3. 가설 2 검정: 사용자 플레이 행동 변화")
 col_play1, col_play2 = st.columns(2)
 with col_play1:
     st.write("#### [2-1] 전체 플레이 행동량 (Capped)")
-    # 박스플롯 생성
+    
+    # 수정 포인트: points=None으로 설정하여 지저분한 점들을 없애고 박스만 남김
     fig_box = px.box(df, x="version", y="sum_gamerounds_capped", color="version",
                      color_discrete_sequence=['#636EFA', '#EF553B'],
-                     points="all") # 모든 데이터 포인트를 옆에 표시하여 밀도 차이 시각화
+                     points=None) 
     
-    # Y축 범위를 데이터의 75% 분위수(Q3) 근처로 조정하여 박스를 크게 키움
-    # 데이터에 따라 100~200 사이로 적절히 조정 가능합니다.
-    q3_value = df['sum_gamerounds_capped'].quantile(0.75)
+    # 평균값(Mean)을 점선으로 추가하여 중앙값(실선)과 비교 가능하게 함
+    fig_box.update_traces(boxmean=True, line_width=2) 
     
     fig_box.update_layout(
         height=350, 
         showlegend=False, 
         margin=dict(t=10, b=10),
-        # Y축을 데이터가 몰려있는 하단부로 집중 (이상치 때문에 박스가 작아지는 것 방지)
-        yaxis=dict(range=[0, q3_value * 2]) 
+        # Y축 범위를 0에서 100(또는 데이터 특성에 맞는 적절한 값)으로 고정
+        # 이렇게 하면 박스의 위치 차이가 훨씬 잘 보입니다.
+        yaxis=dict(range=[0, 100], title="플레이 라운드") 
     )
-    
-    # 중앙값(Median) 외에 평균값(Mean)을 다이아몬드 형태로 추가 표시
-    fig_box.update_traces(boxmean=True) 
     
     st.plotly_chart(fig_box, use_container_width=True)
     st.write("**결과:** 전체 사용자 기준 플레이 총량의 유의미한 변화 없음")
