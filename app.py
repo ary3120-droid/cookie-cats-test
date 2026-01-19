@@ -163,45 +163,49 @@ with col_ins2:
 
 # 최종 결론 박스
 st.warning("⚠️ **최종 판단:** 리텐션 방어가 최우선이므로 **기존안(Gate 30) 유지를 권고**합니다. [cite: 421-424]")
-# --- 추가 제언 섹션: 비즈니스 임팩트 분석 ---
+
+# --- 전략 제언 섹션 (수정본) ---
 st.markdown("---")
-st.subheader("🚀 비즈니스 임팩트 및 시뮬레이션")
+st.subheader("🚀 데이터 기반 전략 제언 (Strategy Roadmap)")
 
-col_biz1, col_biz2 = st.columns(2)
+# 유저 여정별로 3가지 관점을 나누어 배치
+str_col1, str_col2, str_col3 = st.columns(3)
 
-with col_biz1:
-    st.write("#### 💸 리텐션 하락에 따른 유저 손실 추정")
-    # 리텐션 차이 계산 (0.82%p 가정)
-    ret_diff = 0.0082 
-    # 가상의 월간 신규 유입자 수 설정
-    new_users_monthly = st.number_input("월간 신규 유입 유저 수(UA) 설정", value=100000, step=10000)
-    
-    lost_users = int(new_users_monthly * ret_diff)
-    st.error(f"**월간 예상 잔존 유저 손실: 약 {lost_users:,}명**")
-    st.caption(f"※ gate_40 도입 시, gate_30 대비 매월 {lost_users:,}명의 유저가 더 이탈함을 의미함")
-    st.caption(f"※ 위 시뮬레이션은 유입 규모에 따른 기회비용 손실을 정량적으로 보여줍니다")
-
-with col_biz2:
-    st.write("#### 📉 Critical Zone (31-40 라운드) 이탈 패턴")
-    # 30~40 라운드 구간의 유저 잔존 데이터 시뮬레이션
-    # 실제 데이터에서 해당 구간의 이탈률을 계산하여 시각화
-    zone_df = df[df['sum_gamerounds_capped'].between(30, 45)]
-    fig_zone = px.histogram(zone_df, x="sum_gamerounds_capped", color="version",
-                            marginal="rug", barmode="group",
-                            color_discrete_sequence=['#636EFA', '#EF553B'])
-    fig_zone.update_layout(title="Gate 인근 구간(30-45) 유저 분포", xaxis_title="플레이 라운드", yaxis_title="유저 수")
-    st.plotly_chart(fig_zone, use_container_width=True)
-
-# 마케팅 전략 시각화 (Expander 활용)
-with st.expander("💡 [전략 제언] 감질맛 효과 극대화를 위한 UX/UI 시안 보기"):
+with str_col1:
     st.markdown("""
-    ### 1. 시각적 Cliffhanger 전략
-    * **현상:** Gate 30에서 멈춘 유저의 7일차 복귀율이 1.7% 더 높음.
-    * **적용:** 게이트 화면 너머로 **다음 스테이지 보상**을 노출하여 재방문 동기 부여.
-    
-    ### 2. 가변적 게이트 시스템 (Dynamic Gating)
-    * **적용:** 초반(30단계)은 리텐션을 위해 짧게, 후반(40단계 이후)은 몰입을 위해 길게 배치.
-    
-    ### 3. 개인화된 리턴 푸시 (CRM)
-    * **적용:** Gate 30에서 멈춘 유저가 24시간 미접속 시 "고양이가 쿠키를 다 구웠어요!" 알림 발송.
-    """)
+    <div style="background-color: #f8f9fb; padding: 15px; border-radius: 10px; border-top: 5px solid #636EFA; height: 100%;">
+        <h4>1. 서비스 기획</h4>
+        <p><b>'감질맛(Cliffhanger)' 극대화</b></p>
+        <ul>
+            <li><b>시각적 동기부여:</b> 게이트 화면 너머로 다음 보상이나 고양이 애니메이션을 노출하여 기대감 부여 [cite: 434-436]</li>
+            <li><b>하이브리드 설계:</b> 리텐션이 중요한 초반은 짧게, 몰입이 검증된 후반은 길게 배치하는 가변적 설계 [cite: 173-178]</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with str_col2:
+    st.markdown("""
+    <div style="background-color: #f8f9fb; padding: 15px; border-radius: 10px; border-top: 5px solid #00CC96; height: 100%;">
+        <h4>2. 마케팅 (CRM)</h4>
+        <p><b>맞춤형 복귀 알림</b></p>
+        <ul>
+            <li><b>타겟팅 알림:</b> 30단계 근처 정체 유저 대상 "고양이가 기다려요" 등 감성적 푸시 발송 [cite: 429-434]</li>
+            <li><b>복귀 리워드:</b> 이탈 유저 복귀 시 게이트 즉시 통과 열쇠 등 재진입 장벽 완화 아이템 지급 [cite: 442-443]</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with str_col3:
+    st.markdown("""
+    <div style="background-color: #f8f9fb; padding: 15px; border-radius: 10px; border-top: #FFA15A 5px solid; height: 100%;">
+        <h4>3. 사업 및 BM 전략</h4>
+        <p><b>코어 유저 타겟팅</b></p>
+        <ul>
+            <li><b>찐팬 전용 패키지:</b> 몰입도가 증명된 Gate 40 통과 유저 대상 기간 한정 고효율 패키지 제안 [cite: 413, 441-443]</li>
+            <li><b>연속성 유지 상품:</b> 플레이 강도가 높아진 시점에 하트 회복 속도 향상 등 월정액 상품 제안 [cite: 439-443]</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+# 하단 캡션 추가
+st.caption("※ 위 전략은 실험에서 도출된 리텐션(Gate 30)과 몰입도(Gate 40)의 상충 관계를 비즈니스 가치로 전환하기 위한 로드맵입니다. [cite: 396-397]")
