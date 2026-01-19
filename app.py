@@ -131,58 +131,38 @@ with col_play2:
     fig_int.update_traces(textfont_size=14, textposition="outside")
     st.plotly_chart(fig_int, use_container_width=True)
     st.success(f"**발견:** 잔존 유저 집단 내 몰입도 **+7.6회 유의적 상승** ($p < 0.05$)")
-# 4️⃣ 핵심 인사이트: 게이트의 두 가지 역할 및 심층 분석 (수정본)
+# 4️⃣ 핵심 인사이트: 실험 요약 및 전략 (Compact Version)
 st.markdown("---")
-st.subheader("💡 핵심 인사이트: 게이트의 두 가지 역할 및 심층 분석")
+st.subheader("💡 핵심 인사이트 및 비즈니스 제언")
 
-# (1) Gate 30 & Critical Zone 분석 섹션
-ins_col1, ins_col2 = st.columns(2)
+col_ins1, col_ins2 = st.columns(2)
 
-with ins_col1:
-    st.markdown("""
-    <div style="background-color: #f8f9fb; padding: 20px; border-radius: 10px; border-left: 5px solid #636EFA; height: 350px;">
-        <h4>1) Gate 30: 재방문 트리거 (Cliffhanger)</h4>
+with col_ins1:
+    st.markdown(f"""
+    <div style="background-color: #f0f2f6; padding: 20px; border-radius: 10px; height: 100%;">
+        <h4>✅ 왜 Gate 30인가? (Retention)</h4>
         <ul>
-            <li><b>실험 결과:</b> 게이트를 일찍 만나는 gate_30 집단에서 리텐션이 유의미하게 높음. 적절한 시점의 차단이 재방문 이유를 제공함. [cite: 351, 398]</li>
-            <li><b>심리적 기제:</b> 30단계에서 멈춘 유저들은 '감질맛'을 느끼며 재방문 동기를 얻음. (1일 미접속자의 7일차 복귀율이 gate_30에서 약 1.7% 더 높음) [cite: 356, 399]</li>
-            <li><b>UX 자산:</b> 불편함은 제거 대상이 아니라, 적절한 타이밍에 배치될 때 유저의 목표 의식을 형성하는 <b>전략적 자산</b>임. [cite: 380, 401]</li>
+            <li><b>감질맛 효과:</b> 이른 차단이 유저에게 '미완성 과업' 인식을 주어 재방문 유도 [cite: 399]</li>
+            <li><b>적절한 제동:</b> 무조건적인 플레이보다 <b>강제 휴식</b>이 장기 잔존에 유리함 증명 [cite: 401-402]</li>
+            <li><b>결과:</b> 7일 리텐션 지표에서 <b>Gate 30이 압도적 우위</b> [cite: 351-353]</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
 
-with ins_col2:
-    st.markdown("""
-    <div style="background-color: #f8f9fb; padding: 20px; border-radius: 10px; border-left: 5px solid #00CC96; height: 350px;">
-        <h4>2) Critical Zone 분석: 31-40 라운드 집중 검증</h4>
+with col_ins2:
+    st.markdown(f"""
+    <div style="background-color: #f0f2f6; padding: 20px; border-radius: 10px; height: 100%;">
+        <h4>🚀 Gate 40의 활용 (Engagement)</h4>
         <ul>
-            <li><b>집중 검증:</b> 게이트 위치 변경의 직접 영향을 받은 31-40 구간 유저만 필터링하여 분석. [cite: 368]</li>
-            <li><b>데이터 증명:</b> 강제 휴식을 가졌던 유저(gate_30)의 리텐션이 하이패스 유저(gate_40)보다 높음을 확인. [cite: 369]</li>
-            <li><b>결론:</b> 무조건적인 플레이 지속보다 <b>적절한 제동</b>이 장기 잔존에 유리함이 데이터로 입증됨. [cite: 356, 369]</li>
+            <li><b>코어 유저 몰입:</b> 잔존 유저의 인당 플레이 횟수 <b>+7.6회 상승</b> 확인 [cite: 135-138, 411]</li>
+            <li><b>선별 효과:</b> 유저 수는 줄지만, 남은 유저의 <b>질적 가치(LTV)</b>는 높아짐 [cite: 174-175, 417]</li>
+            <li><b>제언:</b> 헤비 유저 전용 콘텐츠나 <b>수익화 모델(BM)</b> 설계에 활용 권장 [cite: 178, 438-443]</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
-
-# (2) Gate 40 & 최종 권고 섹션
-ins_col3, ins_col4 = st.columns(2)
-
-with ins_col3:
-    st.markdown("""
-    <div style="background-color: #f8f9fb; padding: 20px; border-radius: 10px; border-left: 5px solid #FFA15A; height: 300px;">
-        <h4>3) Gate 40: 코어 유저의 가치를 키우는 몰입 장치</h4>
-        <ul>
-            <li><b>전략적 의미:</b> gate_40은 유저 수(Quantity)를 늘리는 장치가 아니라, 남아 있는 핵심 유저의 가치(Quality)를 극대화하는 분기점. [cite: 391, 417]</li>
-            <li><b>발견:</b> 리텐션은 낮으나 게이트를 넘긴 유저들은 이전보다 <b>7.6라운드 더 플레이</b>하며 깊은 몰입도를 보임. [cite: 334, 411]</li>
-            <li><b>판단 지점:</b> 한 번의 긴 플레이보다 <b>자주 접속하는 짧은 플레이</b>가 게임 생명력 유지에 더 효과적임을 인지해야 함. [cite: 173, 402]</li>
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-
-with ins_col4:
-    st.error("### 🚀 최종 권고: gate_30 유지")
-    st.write("서비스의 핵심 지표인 사용자 유지율(DAU) 방어를 위해 **첫 번째 게이트 위치는 30단계로 유지**하는 것이 최선입니다. [cite: 173, 382]")
-    st.success("단, gate_40에서 확인된 몰입 상승 효과는 **헤비 유저 전용 모드나 시즌 패스** 등 별도의 고도화 전략에 부분 도입할 것을 제안합니다. [cite: 178, 440]")
+# 최종 결론 박스
+st.warning("⚠️ **최종 판단:** 리텐션 방어가 최우선이므로 **기존안(Gate 30) 유지를 권고**합니다. [cite: 421-424]")
 # --- 추가 제언 섹션: 비즈니스 임팩트 분석 ---
 st.markdown("---")
 st.subheader("🚀 비즈니스 임팩트 및 시뮬레이션")
