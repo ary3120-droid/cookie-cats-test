@@ -131,35 +131,58 @@ with col_play2:
     fig_int.update_traces(textfont_size=14, textposition="outside")
     st.plotly_chart(fig_int, use_container_width=True)
     st.success(f"**발견:** 잔존 유저 집단 내 몰입도 **+7.6회 유의적 상승** ($p < 0.05$)")
-# 4️⃣ 최종 의사결정 및 인사이트 (통합)
+# 4️⃣ 핵심 인사이트: 게이트의 두 가지 역할 및 심층 분석 (수정본)
 st.markdown("---")
-st.subheader("4. 최종 성공 판정 및 비즈니스 제언")
+st.subheader("💡 핵심 인사이트: 게이트의 두 가지 역할 및 심층 분석")
 
-score_col1, score_col2 = st.columns([1, 2])
-with score_col1:
-    st.error("## **최종 판정: FAILURE**")
-    st.markdown("### **기존안(gate_30) 유지**")
-    st.write("핵심 지표인 7일 리텐션이 하락하여 변경안 채택 불가.")
+# (1) Gate 30 & Critical Zone 분석 섹션
+ins_col1, ins_col2 = st.columns(2)
 
-with score_col2:
-    # 성격별 지표 요약 테이블
-    results = {
-        "지표 유형": ["Primary (7일 리텐션)", "Guardrail (1일 리텐션)", "Volume (전체 행동량)", "Insight (플레이 강도)"],
-        "가설 결과": ["▼ 하락 (기각)", "➖ 중립 (기각)", "➖ 중립 (기각)", "▲ 상승 (채택)"],
-        "비즈니스 영향": ["유저 이탈 위험 증가", "초기 경험 개선 미비", "양적 성장 한계", "잔존 유저 가치 증가"]
-    }
-    st.table(pd.DataFrame(results))
+with ins_col1:
+    st.markdown("""
+    <div style="background-color: #f8f9fb; padding: 20px; border-radius: 10px; border-left: 5px solid #636EFA; height: 350px;">
+        <h4>1) Gate 30: 재방문 트리거 (Cliffhanger)</h4>
+        <ul>
+            <li><b>실험 결과:</b> 게이트를 일찍 만나는 gate_30 집단에서 리텐션이 유의미하게 높음. 적절한 시점의 차단이 재방문 이유를 제공함. [cite: 351, 398]</li>
+            <li><b>심리적 기제:</b> 30단계에서 멈춘 유저들은 '감질맛'을 느끼며 재방문 동기를 얻음. (1일 미접속자의 7일차 복귀율이 gate_30에서 약 1.7% 더 높음) [cite: 356, 399]</li>
+            <li><b>UX 자산:</b> 불편함은 제거 대상이 아니라, 적절한 타이밍에 배치될 때 유저의 목표 의식을 형성하는 <b>전략적 자산</b>임. [cite: 380, 401]</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("### 💡 핵심 인사이트 및 전략")
-ins1, ins2 = st.columns(2)
-with ins1:
-    st.info("**📉 '감질맛'의 힘 (심리 분석)**\ngate_30의 이른 차단은 유저에게 '드라마 클리프행어'와 같은 효과를 주어 재방문을 유도합니다. gate_40은 이를 제거하여 유저가 한 번에 피로를 느끼게 만들었습니다.")
-with ins2:
-    st.success("**🚀 몰입의 트레이드오프 (전략 분석)**\ngate_40은 리텐션은 깎지만, 살아남은 유저를 더 '헤비 유저'로 만듭니다. 이는 유저 수(Quantity)와 유저당 가치(Quality) 사이의 선택 문제입니다.")
+with ins_col2:
+    st.markdown("""
+    <div style="background-color: #f8f9fb; padding: 20px; border-radius: 10px; border-left: 5px solid #00CC96; height: 350px;">
+        <h4>2) Critical Zone 분석: 31-40 라운드 집중 검증</h4>
+        <ul>
+            <li><b>집중 검증:</b> 게이트 위치 변경의 직접 영향을 받은 31-40 구간 유저만 필터링하여 분석. [cite: 368]</li>
+            <li><b>데이터 증명:</b> 강제 휴식을 가졌던 유저(gate_30)의 리텐션이 하이패스 유저(gate_40)보다 높음을 확인. [cite: 369]</li>
+            <li><b>결론:</b> 무조건적인 플레이 지속보다 <b>적절한 제동</b>이 장기 잔존에 유리함이 데이터로 입증됨. [cite: 356, 369]</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.warning("⚠️ **최종 권고:** 현재 리텐션 방어가 최우선이므로 **gate_30을 유지**하십시오. 단, gate_40에서 확인된 몰입 상승 효과는 추후 '헤비 유저 전용 모드' 설계 시 반영할 것을 제안합니다.")
+st.markdown("<br>", unsafe_allow_html=True)
 
+# (2) Gate 40 & 최종 권고 섹션
+ins_col3, ins_col4 = st.columns(2)
 
+with ins_col3:
+    st.markdown("""
+    <div style="background-color: #f8f9fb; padding: 20px; border-radius: 10px; border-left: 5px solid #FFA15A; height: 300px;">
+        <h4>3) Gate 40: 코어 유저의 가치를 키우는 몰입 장치</h4>
+        <ul>
+            <li><b>전략적 의미:</b> gate_40은 유저 수(Quantity)를 늘리는 장치가 아니라, 남아 있는 핵심 유저의 가치(Quality)를 극대화하는 분기점. [cite: 391, 417]</li>
+            <li><b>발견:</b> 리텐션은 낮으나 게이트를 넘긴 유저들은 이전보다 <b>7.6라운드 더 플레이</b>하며 깊은 몰입도를 보임. [cite: 334, 411]</li>
+            <li><b>판단 지점:</b> 한 번의 긴 플레이보다 <b>자주 접속하는 짧은 플레이</b>가 게임 생명력 유지에 더 효과적임을 인지해야 함. [cite: 173, 402]</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with ins_col4:
+    st.error("### 🚀 최종 권고: gate_30 유지")
+    st.write("서비스의 핵심 지표인 사용자 유지율(DAU) 방어를 위해 **첫 번째 게이트 위치는 30단계로 유지**하는 것이 최선입니다. [cite: 173, 382]")
+    st.success("단, gate_40에서 확인된 몰입 상승 효과는 **헤비 유저 전용 모드나 시즌 패스** 등 별도의 고도화 전략에 부분 도입할 것을 제안합니다. [cite: 178, 440]")
 # --- 추가 제언 섹션: 비즈니스 임팩트 분석 ---
 st.markdown("---")
 st.subheader("🚀 비즈니스 임팩트 및 시뮬레이션")
